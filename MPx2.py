@@ -1,3 +1,5 @@
+#!/usr/bin/python3.6
+
 #----IMPORTANT DESIGN INFORMATION----#
 #Play button is a toggle for whether a song should currently be playing, checks will be like:	[if next pressed]- > [increment current song array by one]- > [is play toggle on?] so if it is on the song will just start playing and it wont if not
 #The currently selected song will be loaded into memory and THAT SONG ONLY, once a new song is chosen the previous will be flushed from memory
@@ -45,23 +47,22 @@
 #		FIX:Create a wrapper IF statement around player control functions checking for a variable called something like 'canRun' which will be set to 0 while dseek is open
 #		FIX 2:When a function is called from Tkinter it actually sets a variable called something like 'toFunction' which will be put into a script to call the associated funtion after checking if 'canRun' is 1
 
-
+print("pre-import")
 import os
 from tkinter import *
 from tkinter.font import Font
-import time
 import dseek #Custom directory seeking script
 import pyglet #Media library/player
-
+print("post-import")
 
 #Updates title/artist/album text
 def updateText():
 	songInfo.config(text=currentTitle)
-	displayWorkingDir.config(text=workingDir)
 	
 	
 #Load song and set related variables
 def loadSong(song):
+	print("loadSong()")
 	#Links global variables and loads song into memory
 	global currentPlayer
 	global currentSong
@@ -70,7 +71,11 @@ def loadSong(song):
 	global currentAlbum
 	global currentSongData
 	global workingDir
-	currentSongData=pyglet.media.load(os.path.join(workingDir,song), streaming=True)
+	print("post globals")
+	print("loading " + os.path.join(workingDir, song))
+
+	currentSongData = pyglet.media.load(os.path.join(workingDir, song), streaming=True)
+	print("post songdata definition")
 	#print(os.path.join(workingDir,currentSong))
 	currentPlayer.queue(currentSongData)
 	##print("Loading I3D information...")
@@ -229,32 +234,6 @@ def changeDirectory():
 	loadSong(currentSong)
 	updateText()
 	
-#Alternate the songInfo object between the song title, artist, and album respectively
-def alternateInfo():
-	#Links global variable for editing/viewing
-	global currentInfo
-	global currentPlayer
-	#Increases current info by one, if it is three it loops to 0
-	if(currentPlayer.playing):
-		if(currentInfo != 2):
-			currentInfo+=1
-		else:
-			currentInfo=0
-		
-		#Changes currently displayed info based on currentInfo's value (0 - Title, 1 - Artist, 2 - Album) The else is just for error handling
-		if(currentInfo == 0):
-			songInfo.config(text=currentTitle)
-		elif(currentInfo == 1):
-			songInfo.config(text=currentArtist)
-		elif(currentInfo == 2):
-			songInfo.config(text=currentAlbum)
-		else:
-			songInfo.config(text="ERROR DISPLAYING INFO")
-		
-	#Wait 100 milliseconds (.1 seconds) then loop function
-	window.after(5000, alternateInfo)
-	
-	
 def drawWindow():
 	#Set play/pause button to a global object so the text can be edited as well as songInfo and progressBar
 	global btnPlayPause
@@ -263,8 +242,6 @@ def drawWindow():
 	global canvas
 	global screenWidth
 	global screenHeight
-	global displayWorkingDir
-	global currentInfo
 	screenWidth=window.winfo_screenwidth()
 	screenHeight=window.winfo_screenheight()
 	#Use monospace font
@@ -277,21 +254,15 @@ def drawWindow():
 	window.geometry("%dx%d%+d%+d" % (200, 90, screenWidth-225, screenHeight-130)) #Window geometry (width, height, x, y)
 	
 	#Replace window with canvas (needed for progess bar)
-	canvas = Canvas(window, width=200, height=90, highlightthickness=0, background="black")
+	canvas = Canvas(window, width=200, height=90, highlightthickness=0, highlightcolor="black", background="black")
 	canvas.pack()
 	
 	#Draw X button as well as the current working directory
 	
-	#Objects set to variables allows them to become editable (in 'updateText()')
-	
-	displayWorkingDir = Button(canvas, text=workingDir, foreground='grey', background='black', borderwidth=0, command=changeDirectory)
-	displayWorkingDir.place(y=0, x=0)
-	Button(canvas, text="X", foreground='white', background='black', borderwidth=0, command=exit).place(y=0, x=186)
-	
-	#Song title
+	Button(canvas, text=workingDir, foreground='grey', background='black', borderwidth=0, highlightthickness=0, highlightcolor="black", command=changeDirectory).place(y=0, x=0)
+	Button(canvas, text="X", foreground='white', background='black', borderwidth=0, highlightthickness=0, highlightcolor="black", command=exit).place(y=0, x=186)
 	songInfo = Label(canvas, text=currentTitle, foreground='white', background='black', borderwidth=0)
 	songInfo.place(y=24, x=0)
-	currentInfo=0
 	
 	#Progress bar
 	progressBar = canvas.create_line(0, 45, 0, 45, fill="white", width=2)
@@ -306,39 +277,46 @@ def drawWindow():
 	window.after(0, songDone)
 	#Start script to make the progress bar move with the song
 	window.after(0, progressBarSet)
-	#Start the alternating song info function
-	window.after(5000, alternateInfo)
 	
 	#Update window and loop to start of draw script
 	window.update()
 	mainloop()
 
+print("pre-init")
 #Initialization - Creates list of supported files, sets the curent directory to the working one, and creates the global empty player
 fileTypes=['mp3', 'wav', 'aiff', 'flac', 'alac', 'ape', 'acc', 'dts']
-workingDir=os.getcwd()+"\\"
+workingDir=os.getcwd()+"/"
 currentPlayer=pyglet.media.Player()
+print("post-init")
 
 #Gets important variables for positioning
 global screenWidth
 global screenHeight
 global currentSongData
+print("post globals")
 
 #Makes window global and primes it for being drawn
 global window
 window=Tk()
+print("post window init")
 
 #Create playlist of audio files
 playlist=createPlaylist(workingDir)
+print("post playlist init")
 
 #Sets the currently playing song to the first item in the playlist and sets the artist information
 songIndex=0
 currentSong=playlist[songIndex]
-#Queue song to player and get information (sets song title, artist, and album variables)
-loadSong(currentSong)
+print("post song init")
 
+#Queue song to player and get information (sets song title, artist, and album variables)
+print(currentSong)
+loadSong(currentSong)
+print("post loadsong")
 
 #Draws window, the rest of the program is handled here
 drawWindow()
+print("post draw")
 
 #currentPlayer.play()
 

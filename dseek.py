@@ -1,6 +1,8 @@
+#!/usr/bin/python3.6
+
 #----IMPORTANT DESIGN INFORMATION----#
-#Dseek is a took used alongside MPx2 as a way to list, search, and change directories
-#The top is reserved for the current directory and the X
+#Dseek is a tool used alongside MPx2 as a way to list, search, and change directories
+#The top is reserved for the current directory and the eXit button.
 #The X will cause dseek to return the value passed to it as an input value (EX. If the input was 'C:\Users\Bob\Music\' it would return 'C:\Users\Bob\Music\')
 #The middle section will be ten lines long each listing a directory, if there is more, buttons will be available to move up and down on the right side, if there is less, the space will be there, but blank
 #If a user clicks on a blank directory, it will not do anything (this will require a check for when a user clicks on an entry)
@@ -18,7 +20,7 @@
 #Create directory list based on current working directory and store it as an array (if array is less than ten entries, fill the rest with '')
 #^^Also create a variable with the number of actual directories (I'll call it 'dirCount' for now)
 #Draw dseekWindow
-#		Draw current working directory and X
+#		Draw current working directory and X button
 #		Draw the directory list and buttons (the directory list is based on a scroll variable, the entry for spot three will be along the lines of 'entry3=dirArray[scrollInt+2]' if the scrollInt is 0)
 #		Draw 'Open' and 'Choose' buttons
 #
@@ -160,7 +162,7 @@ def seek(currentDir):
 	
 	#Back directory buttons
 	Button(dseekWindow, text="⇐", foreground='white', background='black', borderwidth=0, command=backButton).grid(row=2, column=0, sticky=W)
-	
+	 
 	#Draw initial text
 	updateText()
 	
@@ -168,7 +170,7 @@ def seek(currentDir):
 	#Scroll buttons
 	Button(dseekWindow, text="⇑", foreground='white', background='black', borderwidth=0, command=scrollUp).place(y=20, x=186)
 	Button(dseekWindow, text="⇓", foreground='white', background='black', borderwidth=0, command=scrollDown).place(y=240, x=186)
-	
+	r
 	#Open and Choose buttons
 	Button(dseekWindow, text="Choose folder", foreground='white', background='black', borderwidth=2, width=28, command=chooseFolder).place(y=270, x=0)
 	
@@ -188,12 +190,13 @@ def backButton():
 	global scrollInt
 	global finaldir
 	currentDir=workingdir
-	newdir="C:\\"
-	tmp=currentDir.split("\\")
+        ## Changed from "C:\\" to "/" for Linux version, also using '/' for dir split rather than '\\'
+	newdir="/"
+	tmp=currentDir.split("/")
 	tmp = tmp[1:-2]
 	#Rejoin everything but remove the last '\'
 	for item in tmp:
-		newdir=newdir+item+"\\"
+		newdir=newdir+item+"/"
 	#Create list of directories and the number of directories as well as the current scroll count
 	workingdir=newdir
 	dir=listDirectories(workingdir)
@@ -212,7 +215,7 @@ def clickDir(value):
 	global workingdir
 	global dirCount
 	#Create new directory list
-	newdir=workingdir+dir[value]+"\\"
+	newdir=workingdir+dir[value]+"/"
 	#Create list of directories and the number of directories as well as the current scroll count
 	workingdir=newdir
 	dir=listDirectories(workingdir)
